@@ -3,6 +3,14 @@ import Crypto
 import Logging
 import NIOSSH
 
+#if canImport(NIOTransportServices) && os(iOS)
+import NIOTransportServices
+
+public typealias _CitadelPlatformEventLoopGroup = NIOTSEventLoopGroup
+#else
+public typealias _CitadelPlatformEventLoopGroup = MultiThreadedEventLoopGroup
+#endif
+
 extension SSHAlgorithms.Modification<NIOSSHTransportProtection.Type> {
     func apply(to configuration: inout [any NIOSSHTransportProtection.Type]) {
         switch self {
@@ -283,7 +291,7 @@ public final class SSHClient {
         reconnect: SSHReconnectMode,
         algorithms: SSHAlgorithms = SSHAlgorithms(),
         protocolOptions: Set<SSHProtocolOption> = [],
-        group: MultiThreadedEventLoopGroup = .singleton,
+        group: _CitadelPlatformEventLoopGroup = .singleton,
         channelHandlers: [ChannelHandler] = [],
         connectTimeout:TimeAmount = .seconds(30)
     ) async throws -> SSHClient {
